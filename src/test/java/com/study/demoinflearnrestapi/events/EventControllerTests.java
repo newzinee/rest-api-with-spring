@@ -3,7 +3,6 @@ package com.study.demoinflearnrestapi.events;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -16,9 +15,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @version 0.1.0
  * @since 2020/12/28
  */
-@SpringBootTest
 @WebMvcTest
-public class EventControllerTests {
+class EventControllerTests {
 
     @Autowired
     MockMvc mockMvc;
