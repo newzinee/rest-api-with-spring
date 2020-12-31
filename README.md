@@ -15,3 +15,12 @@ controller 에서 repository 를 사용하고
 Mockito.when(eventRepository.save(event)).thenReturn(event);
 ```
 id도 넣어주어야 한다. 
+
+---
+
+modelMapper 적용했더니 다시 NPE 발생.
+이유는 controller 에서 저장하려고 하는 객체는 modelMapper 를 통해 새로 만든 객체. 
+그래서 test에서 만든 Event객체와 같지 않아. 그래서 repository mocking이 적용되지 않았고, 기본적으로 제공하는 null이 넘어갔고, 그래서 newEvent.getId() 할 때 NPE 가 발생한 것.
+
+해결해 주기 위해서 mock을 안함. 그럴라면 슬라이스 테스트가 아니여야 함. @SpringBootTest 적용
+이제 실제 repository를 사용해서 동작 -> 그러면 test에 넣어준 값(event.build로 만든)들은 무시가 됨 .
