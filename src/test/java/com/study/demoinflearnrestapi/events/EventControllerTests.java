@@ -34,7 +34,7 @@ class EventControllerTests {
 
     @Test
     void createEvent() throws Exception {
-        Event event = Event.builder()
+        EventDto event = EventDto.builder()
                 .name("Spring")
                 .description("Rest API Development with Spring")
                 .beginEnrollmentDateTime(LocalDateTime.of(2020, 12, 28,23,30,41))
@@ -45,10 +45,7 @@ class EventControllerTests {
                 .maxPrice(200)
                 .limitOfEnrollment(100)
                 .location("강남역")
-                .free(true)
-                .eventStatus(EventStatus.PUBLISHED)
                 .build();
-        event.setId(10);
 
         mockMvc.perform(post("/api/events")
                     .contentType(MediaType.APPLICATION_JSON)
@@ -62,5 +59,31 @@ class EventControllerTests {
                 .andExpect(jsonPath("id").value(Matchers.not(100)))
                 .andExpect(jsonPath("free").value(Matchers.not(true)))
                 .andExpect(jsonPath("eventStatus").value(EventStatus.DRAFT.name()));
+    }
+
+    @Test
+    void createEvent_Bad_Request() throws Exception {
+        Event event = Event.builder()
+                .id(100)
+                .name("Spring")
+                .description("Rest API Development with Spring")
+                .beginEnrollmentDateTime(LocalDateTime.of(2020, 12, 28,23,30,41))
+                .closeEnrollmentDateTime(LocalDateTime.of(2020, 12, 29,23,30,41))
+                .beginEventDateTime(LocalDateTime.of(2020, 12, 30,23,30,41))
+                .endEventDateTime(LocalDateTime.of(2020, 12, 31,23,30,41))
+                .basePrice(100)
+                .maxPrice(200)
+                .limitOfEnrollment(100)
+                .location("강남역")
+                .free(true)
+                .eventStatus(EventStatus.PUBLISHED)
+                .build();
+
+        mockMvc.perform(post("/api/events")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaTypes.HAL_JSON)
+                .content(objectMapper.writeValueAsString(event)))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
     }
 }

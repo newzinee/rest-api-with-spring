@@ -24,3 +24,13 @@ modelMapper 적용했더니 다시 NPE 발생.
 
 해결해 주기 위해서 mock을 안함. 그럴라면 슬라이스 테스트가 아니여야 함. @SpringBootTest 적용
 이제 실제 repository를 사용해서 동작 -> 그러면 test에 넣어준 값(event.build로 만든)들은 무시가 됨 .
+
+---
+
+옳지 않은 값을 주면 bad request 응답.
+
+spring boot 에서 제공하는 설정
+
+```properties
+spring.jackson.deserialization.fail-on-unknown-properties=true
+```
