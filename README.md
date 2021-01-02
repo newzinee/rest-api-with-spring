@@ -34,3 +34,23 @@ spring boot 에서 제공하는 설정
 ```properties
 spring.jackson.deserialization.fail-on-unknown-properties=true
 ```
+
+---
+
+에러를 내려주고 싶은데 아래처럼 body에 넣어주면 될 것 같은데 안됨 
+```java
+if(errors.hasErrors()) {
+    return ResponseEntity.badRequest().body(errors);
+}
+```
+BeanSerializer 에러 발생. errors 는 json으로 변환이 안됨. 
+
+왜 event는 잘 넘어갔는데 errors는 에러가 발생할까? 
+
+우리가 만들어준 객체인 Event는 javaBean 스펙을 따르기 때문에 ObjectMapper의 BeanSerializer 를 통해 직렬화할 수 있음.
+
+errors 는 javaBean 스펙을 따르지 않기 떄문에 json으로 변환을 시도(MediaTypes.HAL_JSON_VALUE)하지만, 변환할 수 없음.
+
+해결을 위해 ErrorsSerializer 구현 .
+
+구현이 다 되었으면 이 ErrorsSerializer 를 ObjectMapper에 등록해줘야 함. -> 스프링 부트가 제공하는 @JsonComponent 사용하면 됨. 
