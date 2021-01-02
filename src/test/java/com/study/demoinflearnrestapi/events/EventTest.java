@@ -1,9 +1,11 @@
 package com.study.demoinflearnrestapi.events;
 
-import junitparams.JUnitParamsRunner;
-import junitparams.Parameters;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -12,7 +14,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @version 0.1.0
  * @since 2020/12/27
  */
-@RunWith(JUnitParamsRunner.class)
 class EventTest {
 
     @Test
@@ -40,8 +41,8 @@ class EventTest {
         assertThat(event.getDescription()).isEqualTo(description);
     }
 
-    @Test
-    @Parameters(method = "paramsForTestFree")
+    @ParameterizedTest
+    @MethodSource("parametersForTestFree")
     void testFree(int basePrice, int maxPrice, boolean isFree) {
         // Given
         Event event = Event.builder()
@@ -56,17 +57,17 @@ class EventTest {
         assertThat(event.isFree()).isEqualTo(isFree);
     }
 
-    private Object[] parametersForTestFree() {
-        return new Object[] {
-                new Object[] {0, 0, true},
-                new Object[] {100, 0, false},
-                new Object[] {0, 100, false},
-                new Object[] {100, 200, false}
-        };
+    private static Stream<Arguments> parametersForTestFree() {
+        return Stream.of(
+                Arguments.of(0, 0, true),
+                Arguments.of(100, 0, false),
+                Arguments.of(0, 100, false),
+                Arguments.of(100, 200, false)
+        );
     }
 
-    @Test
-    @Parameters
+    @ParameterizedTest
+    @MethodSource("parametersForTestOffline")
     void testOffline(String location, boolean isOffline) {
         // Given
         Event event = Event.builder()
@@ -80,11 +81,11 @@ class EventTest {
         assertThat(event.isOffline()).isEqualTo(isOffline);
     }
 
-    private Object[] parametersForGTestOffline() {
-        return new Object[]{
-                new Object[]{"강남역", true},
-                new Object[]{null, false},
-                new Object[]{"   ", false}
-        };
+    private static Stream<Arguments> parametersForTestOffline() {
+        return Stream.of(
+                Arguments.of("강남역", true),
+                Arguments.of(null, false),
+                Arguments.of("   ", false)
+        );
     }
 }

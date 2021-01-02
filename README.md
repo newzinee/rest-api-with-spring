@@ -59,7 +59,7 @@ errors 는 javaBean 스펙을 따르지 않기 떄문에 json으로 변환을 �
 
 test 코드 refactoring 하기 
 
-JUnit4 에서 .. 
+### JUnit4 에서 .. 
 
 JUnitParams 의존성 추가 
 ```xml
@@ -129,3 +129,38 @@ Test class에 RunWith 추가
 ```
 
 `parametersFor`뒤에 메서드 이름을 지정하면 `@Parameters` 만 써도 찾아서 적용된다.  
+
+
+### JUnit5 에서 ... 
+
+파라미터 테스트하고자 하는 테스트 위에 `@ParameterizedTest` 붙여주고, 메서드 이용해서 argument 넘길 시 `@MethodSource` 뒤에 메서드 이름을 적어주면 된다. 
+
+@MethodSource 에 넘기는 메서드는 `static` 이여야하고 `Stream<Argumnets>` 를 리턴해야 한다. 
+
+```java
+
+@ParameterizedTest
+@MethodSource("parametersForTestFree")
+void testFree(int basePrice, int maxPrice, boolean isFree) {
+    // Given
+    Event event = Event.builder()
+            .basePrice(basePrice)
+            .maxPrice(maxPrice)
+            .build();
+
+    // When
+    event.update();
+
+    // Then
+    assertThat(event.isFree()).isEqualTo(isFree);
+}
+
+private static Stream<Arguments> parametersForTestFree() {
+    return Stream.of(
+            Arguments.of(0, 0, true),
+            Arguments.of(100, 0, false),
+            Arguments.of(0, 100, false),
+            Arguments.of(100, 200, false)
+    );
+}
+```
