@@ -54,3 +54,78 @@ errors 는 javaBean 스펙을 따르지 않기 떄문에 json으로 변환을 �
 해결을 위해 ErrorsSerializer 구현 .
 
 구현이 다 되었으면 이 ErrorsSerializer 를 ObjectMapper에 등록해줘야 함. -> 스프링 부트가 제공하는 @JsonComponent 사용하면 됨. 
+
+---
+
+test 코드 refactoring 하기 
+
+JUnit4 에서 .. 
+
+JUnitParams 의존성 추가 
+```xml
+<dependency>
+    <groupId>pl.pragmatists</groupId>
+    <artifactId>JUnitParams</artifactId>
+    <version>1.1.1</version>
+    <scope>test</scope>
+</dependency>
+```
+
+Test class에 RunWith 추가
+```java
+@RunWith(JUnitParamsRunner.class)
+```
+
+```java
+
+    @Test
+    @Parameters({
+            "0, 0, true",
+            "100, 0, false",
+            "0, 100, false"
+    })
+    void testFree(int basePrice, int maxPrice, boolean isFree) {
+        // Given
+        Event event = Event.builder()
+                .basePrice(basePrice)
+                .maxPrice(maxPrice)
+                .build();
+
+        // When
+        event.update();
+
+        // Then
+        assertThat(event.isFree()).isEqualTo(isFree);
+    }
+```
+
+좀 더 type-safe 하게
+```java
+
+    @Test
+    @Parameters(method = "paramsForTestFree")
+    void testFree(int basePrice, int maxPrice, boolean isFree) {
+        // Given
+        Event event = Event.builder()
+                .basePrice(basePrice)
+                .maxPrice(maxPrice)
+                .build();
+
+        // When
+        event.update();
+
+        // Then
+        assertThat(event.isFree()).isEqualTo(isFree);
+    }
+
+    private Object[] parametersForTestFree() {
+        return new Object[] {
+                new Object[] {0, 0, true},
+                new Object[] {100, 0, false},
+                new Object[] {0, 100, false},
+                new Object[] {100, 200, false}
+        };
+    }
+```
+
+`parametersFor`뒤에 메서드 이름을 지정하면 `@Parameters` 만 써도 찾아서 적용된다.  
