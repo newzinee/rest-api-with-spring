@@ -35,7 +35,7 @@ class EventControllerTests {
 
     @Test
 //    @TestDescription("정상적으로 이벤트를 생성하는 테스트")  // JUnit4 는 DisplayName을 제공하지 않아서 만든 어노테이션
-    @DisplayName("정상적으로 이벤트를 생성하는 테스트"
+    @DisplayName("정상적으로 이벤트를 생성하는 테스트")
     void createEvent() throws Exception {
         EventDto event = EventDto.builder()
                 .name("Spring")
