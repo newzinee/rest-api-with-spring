@@ -77,6 +77,7 @@ Test class에 RunWith 추가
 ```
 
 ```java
+class Test {
 
     @Test
     @Parameters({
@@ -97,10 +98,12 @@ Test class에 RunWith 추가
         // Then
         assertThat(event.isFree()).isEqualTo(isFree);
     }
+}
 ```
 
 좀 더 type-safe 하게
 ```java
+class Test {
 
     @Test
     @Parameters(method = "paramsForTestFree")
@@ -119,13 +122,14 @@ Test class에 RunWith 추가
     }
 
     private Object[] parametersForTestFree() {
-        return new Object[] {
-                new Object[] {0, 0, true},
-                new Object[] {100, 0, false},
-                new Object[] {0, 100, false},
-                new Object[] {100, 200, false}
+        return new Object[]{
+                new Object[]{0, 0, true},
+                new Object[]{100, 0, false},
+                new Object[]{0, 100, false},
+                new Object[]{100, 200, false}
         };
     }
+}
 ```
 
 `parametersFor`뒤에 메서드 이름을 지정하면 `@Parameters` 만 써도 찾아서 적용된다.  
@@ -138,29 +142,40 @@ Test class에 RunWith 추가
 @MethodSource 에 넘기는 메서드는 `static` 이여야하고 `Stream<Argumnets>` 를 리턴해야 한다. 
 
 ```java
+class Test {
 
-@ParameterizedTest
-@MethodSource("parametersForTestFree")
-void testFree(int basePrice, int maxPrice, boolean isFree) {
-    // Given
-    Event event = Event.builder()
-            .basePrice(basePrice)
-            .maxPrice(maxPrice)
-            .build();
+    @ParameterizedTest
+    @MethodSource("parametersForTestFree")
+    void testFree(int basePrice, int maxPrice, boolean isFree) {
+        // Given
+        Event event = Event.builder()
+                .basePrice(basePrice)
+                .maxPrice(maxPrice)
+                .build();
 
-    // When
-    event.update();
+        // When
+        event.update();
 
-    // Then
-    assertThat(event.isFree()).isEqualTo(isFree);
-}
+        // Then
+        assertThat(event.isFree()).isEqualTo(isFree);
+    }
 
-private static Stream<Arguments> parametersForTestFree() {
-    return Stream.of(
-            Arguments.of(0, 0, true),
-            Arguments.of(100, 0, false),
-            Arguments.of(0, 100, false),
-            Arguments.of(100, 200, false)
-    );
+    private static Stream<Arguments> parametersForTestFree() {
+        return Stream.of(
+                Arguments.of(0, 0, true),
+                Arguments.of(100, 0, false),
+                Arguments.of(0, 100, false),
+                Arguments.of(100, 200, false)
+        );
+    }
 }
 ```
+
+---
+
+Controller test에  rest docs 적용하는데 links를 설정했음에도 불구하고 responseFields 다시 체크하라고 에러남.
+links에 설정해줬으니까 될 줄 알았는데 안됨 
+
+방법 1. `responseFields` 대신 `relaxedResponseFields` 사용. relaxedResponseFields 는 문서 일부분만 체크할 수 있어서 정확한 문서생성이 되지 않음.
+
+방법 2. links 를 다시 `responseeFields에 채움`  
