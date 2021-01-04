@@ -1,6 +1,10 @@
 # rest-api-with-spring
 인프런 백기선님의 강의 (https://www.inflearn.com/course/spring_rest-api/dashboard)
 
+테스트 작성 -> 코드 작성
+
+---
+
 controller 에서 repository 를 사용하고 
 @WebMvcTest 만 있는 EventControllerTests에서 테스트를 실행하면 repository가 Bean으로 등록되지 않았다는 에러가 나온다.  
 
