@@ -5,6 +5,7 @@ import com.study.demoinflearnrestapi.common.RestDocsConfiguration;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -26,6 +27,7 @@ import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.li
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -50,6 +52,9 @@ class EventControllerTests {
     @Autowired
     EventRepository eventRepository;
 
+    @Autowired
+    ModelMapper modelMapper;
+
 
     @Test
 //    @TestDescription("정상적으로 이벤트를 생성하는 테스트")  // JUnit4 는 DisplayName을 제공하지 않아서 만든 어노테이션
@@ -58,10 +63,10 @@ class EventControllerTests {
         EventDto event = EventDto.builder()
                 .name("Spring")
                 .description("Rest API Development with Spring")
-                .beginEnrollmentDateTime(LocalDateTime.of(2020, 12, 28,23,30,41))
-                .closeEnrollmentDateTime(LocalDateTime.of(2020, 12, 29,23,30,41))
-                .beginEventDateTime(LocalDateTime.of(2020, 12, 30,23,30,41))
-                .endEventDateTime(LocalDateTime.of(2020, 12, 31,23,30,41))
+                .beginEnrollmentDateTime(LocalDateTime.of(2020, 12, 28, 23, 30, 41))
+                .closeEnrollmentDateTime(LocalDateTime.of(2020, 12, 29, 23, 30, 41))
+                .beginEventDateTime(LocalDateTime.of(2020, 12, 30, 23, 30, 41))
+                .endEventDateTime(LocalDateTime.of(2020, 12, 31, 23, 30, 41))
                 .basePrice(100)
                 .maxPrice(200)
                 .limitOfEnrollment(100)
@@ -142,10 +147,10 @@ class EventControllerTests {
                 .id(100)
                 .name("Spring")
                 .description("Rest API Development with Spring")
-                .beginEnrollmentDateTime(LocalDateTime.of(2020, 12, 28,23,30,41))
-                .closeEnrollmentDateTime(LocalDateTime.of(2020, 12, 29,23,30,41))
-                .beginEventDateTime(LocalDateTime.of(2020, 12, 30,23,30,41))
-                .endEventDateTime(LocalDateTime.of(2020, 12, 31,23,30,41))
+                .beginEnrollmentDateTime(LocalDateTime.of(2020, 12, 28, 23, 30, 41))
+                .closeEnrollmentDateTime(LocalDateTime.of(2020, 12, 29, 23, 30, 41))
+                .beginEventDateTime(LocalDateTime.of(2020, 12, 30, 23, 30, 41))
+                .endEventDateTime(LocalDateTime.of(2020, 12, 31, 23, 30, 41))
                 .basePrice(100)
                 .maxPrice(200)
                 .limitOfEnrollment(100)
@@ -168,8 +173,8 @@ class EventControllerTests {
         EventDto eventDto = EventDto.builder().build();
 
         mockMvc.perform(post("/api/events")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(eventDto)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(eventDto)))
                 .andExpect(status().isBadRequest());
     }
 
@@ -179,10 +184,10 @@ class EventControllerTests {
         EventDto eventDto = EventDto.builder()
                 .name("Spring")
                 .description("Rest API Development with Spring")
-                .beginEnrollmentDateTime(LocalDateTime.of(2020, 12, 28,23,30,41))
-                .closeEnrollmentDateTime(LocalDateTime.of(2020, 12, 29,23,30,41))
-                .beginEventDateTime(LocalDateTime.of(2020, 12, 30,23,30,41))
-                .endEventDateTime(LocalDateTime.of(2020, 12, 20,23,30,41))
+                .beginEnrollmentDateTime(LocalDateTime.of(2020, 12, 28, 23, 30, 41))
+                .closeEnrollmentDateTime(LocalDateTime.of(2020, 12, 29, 23, 30, 41))
+                .beginEventDateTime(LocalDateTime.of(2020, 12, 30, 23, 30, 41))
+                .endEventDateTime(LocalDateTime.of(2020, 12, 20, 23, 30, 41))
                 .basePrice(10000)
                 .maxPrice(200)
                 .limitOfEnrollment(100)
@@ -208,9 +213,9 @@ class EventControllerTests {
 
         // When & Then
         this.mockMvc.perform(get("/api/events")
-                    .param("page", "1")
-                    .param("size", "10")
-                    .param("sort", "name,DESC"))
+                .param("page", "1")
+                .param("size", "10")
+                .param("sort", "name,DESC"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("page").exists())
@@ -235,7 +240,7 @@ class EventControllerTests {
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.profile").exists())
                 .andDo(document("get-an-event"))
-                ;
+        ;
     }
 
     @Test
@@ -249,10 +254,91 @@ class EventControllerTests {
 
     }
 
+    @Test
+    @DisplayName("이벤트를 정상적으로 수정하기")
+    public void updateEvent() throws Exception {
+        // Given
+        final Event event = this.generateEvent(200);
+
+        final EventDto eventDto = this.modelMapper.map(event, EventDto.class);
+        final String updatedEventName = "Updated Event";
+        eventDto.setName(updatedEventName);
+
+        // When & Then
+        this.mockMvc.perform(put("/api/events/{id}", event.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.objectMapper.writeValueAsString(eventDto)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("name").value(updatedEventName))
+                .andExpect(jsonPath("_links.self").exists());
+    }
+
+    @Test
+    @DisplayName("입력값이 비어있는 경우에 이벤트 수정 실패")
+    public void updateEvent400Empty() throws Exception {
+        // Given
+        final Event event = this.generateEvent(200);
+
+        final EventDto eventDto = new EventDto();
+
+        // When & Then
+        this.mockMvc.perform(put("/api/events/{id}", event.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.objectMapper.writeValueAsString(eventDto)))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("입력값이 잘못된 경우에 이벤트 수정 실패")
+    public void updateEvent400Wrong() throws Exception {
+        // Given
+        final Event event = this.generateEvent(200);
+
+        final EventDto eventDto = this.modelMapper.map(event, EventDto.class);
+        eventDto.setBasePrice(20000);
+        eventDto.setMaxPrice(1000);
+
+        // When & Then
+        this.mockMvc.perform(put("/api/events/{id}", event.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.objectMapper.writeValueAsString(eventDto)))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 이벤트 수정 실패")
+    public void updateEvent404() throws Exception {
+        // Given
+        final Event event = this.generateEvent(200);
+
+        final EventDto eventDto = this.modelMapper.map(event, EventDto.class);
+
+        // When & Then
+        this.mockMvc.perform(put("/api/events/12351237")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.objectMapper.writeValueAsString(eventDto)))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+    }
+
     private Event generateEvent(final int index) {
         Event event = Event.builder()
                 .name("event " + index)
                 .description("test event")
+                .beginEnrollmentDateTime(LocalDateTime.of(2020, 12, 28, 23, 30, 41))
+                .closeEnrollmentDateTime(LocalDateTime.of(2020, 12, 29, 23, 30, 41))
+                .beginEventDateTime(LocalDateTime.of(2020, 12, 30, 23, 30, 41))
+                .endEventDateTime(LocalDateTime.of(2020, 12, 31, 23, 30, 41))
+                .basePrice(100)
+                .maxPrice(200)
+                .limitOfEnrollment(100)
+                .location("강남역")
+                .free(false)
+                .offline(true)
+                .eventStatus(EventStatus.DRAFT)
                 .build();
         return this.eventRepository.save(event);
     }
