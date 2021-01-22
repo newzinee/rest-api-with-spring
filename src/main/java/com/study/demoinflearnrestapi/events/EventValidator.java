@@ -24,8 +24,12 @@ public class EventValidator {
             errors.rejectValue("endEventDateTime", "wrongValue", "EndEventDateTime is wrong");  // FieldError 에 들어감.
         }
 
+        final LocalDateTime closeEnrollmentDateTime = eventDto.getCloseEnrollmentDateTime();
+        if(closeEnrollmentDateTime.isAfter(eventDto.getBeginEnrollmentDateTime()) ||
+        closeEnrollmentDateTime.isAfter(eventDto.getCloseEnrollmentDateTime()) ||
+        closeEnrollmentDateTime.isAfter(eventDto.getBeginEnrollmentDateTime())) {
+            errors.rejectValue("closeEnrollmentDateTime", "wrongValue", "CloseEnrollmentDateTime is wrong");  // FieldError 에 들어감.
 
-        // TODO BeginEventDateTime
-        // TODO CloseEnrollmentDateTime
+        }
     }
 }
